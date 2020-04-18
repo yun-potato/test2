@@ -13,16 +13,7 @@
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
-  <applications>
-    <application path="com/xw/ConstraintDemo2.mxml"/>
-    <application path="test2.mxml"/>
-    <application path="com/xw/test.mxml"/>
-    <application path="com/xw/ConstraintDemo3.mxml"/>
-    <application path="First.mxml"/>
-    <application path="com/xw/ConstraintDemo1.mxml"/>
-    <application path="test3.mxml"/>
-    <application path="com/xw/flex_progress.mxml"/>
-  </applications>
+  <applications/>
   <modules/>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
