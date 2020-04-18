@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	
+	<s:VGroup width="100%" height="70%" horizontalAlign="center">
+		<mx:Grid width="80%" height="25%" horizontalAlign="center" backgroundColor="#CCE8CF">
+			<mx:GridRow width="100%" horizontalAlign="center" borderVisible="false">
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Label text="客户号：" textAlign="right" width="100%" height="100%">
+						
+					</s:Label>
+				</mx:GridItem>
+				
+				<mx:GridItem width="25%" height="100%">
+					<s:TextInput id="ctmid" width="100%" height="100%"
+								 keyDown="keyHandler(event)" restrict="0-9" maxChars="11"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Label text="客户名称：" textAlign="right" width="100%" height="100%"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="25%" height="100%">
+					<s:TextInput id="ctmName" width="100%" height="100%" maxChars="50"/>
+				</mx:GridItem>
+			</mx:GridRow>
+			
+			<mx:GridRow width="100%" horizontalAlign="center" borderVisible="false">
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Label text="证件类型：" textAlign="right" width="100%" height="100%">
+						
+					</s:Label>
+				</mx:GridItem>
+				
+				<mx:GridItem width="25%" height="100%">
+					<s:ComboBox id="ctmType" width="100%"
+								selectedIndex="-1"
+								prompt="请选择"
+								labelFunction="commLabelFunction"
+								dataProvider="{this.ctmTypes}"
+								change="ctmTypeChange(event)"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Label text="证件号码：" textAlign="right" width="100%" height="100%"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="25%" height="100%">
+					<s:TextInput id="ctmNum" width="100%" height="100%"/>
+				</mx:GridItem>
+			</mx:GridRow>
+			
+			<mx:GridRow width="100%" horizontalAlign="center" borderVisible="false">
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Label text="开户时间：" textAlign="right" width="100%" height="100%">
+						
+					</s:Label>
+				</mx:GridItem>
+				
+				<mx:GridItem width="25%" height="100%">
+					<mx:DateField id="ctmTime" width="100%" formatString="YYYY-MM-DD"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					
+				</mx:GridItem>
+				
+				<mx:GridItem width="25%" height="100%">
+					
+				</mx:GridItem>
+			</mx:GridRow>
+			
+		</mx:Grid>
+		
+		<!--按钮布局-->
+		<mx:Grid width="80%" height="25%" horizontalAlign="center">
+			<mx:GridRow width="100%" horizontalAlign="center" borderVisible="false">
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Button id="query" label="查询" width="100%" height="100%" click="queryButtonClick(event)"/>
+				</mx:GridItem>
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Button id="update" label="修改" width="100%" height="100%" click="updateButtonClick(event)"/>
+				</mx:GridItem>
+				<mx:GridItem width="15%" height="100%" borderVisible="false">
+					<s:Button id="delete" label="删除" width="100%" height="100%" click="queryButtonClick(event)"/>
+				</mx:GridItem>
+				
+			</mx:GridRow>
+		</mx:Grid>
+		
+		<!--数据列-->
+		<mx:DataGrid id="data" width="80%" height="75%"
+					 dataProvider="{dataGridCollection}"
+					 allowMultipleSelection="true">
+			<mx:columns>
+				<mx:DataGridColumn headerText="客户名" dataField="customerId" textAlign="center"/>
+				<mx:DataGridColumn headerText="客户名称" dataField="customerName" textAlign="center"/>
+				<mx:DataGridColumn headerText="客户种类" dataField="customerType" textAlign="center"/>
+				<mx:DataGridColumn headerText="证件号码" dataField="customerNum" textAlign="center"/>
+				<mx:DataGridColumn headerText="开户时间" dataField="customerTime" textAlign="center"/>
+			</mx:columns>
+			
+		</mx:DataGrid>
+		
+		
+		
+	</s:VGroup>
+	
+	<!--actionscript代码-->
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.ListEvent;
+			
+			
+			[Bindable]
+			public var ctmTypes:ArrayCollection = new ArrayCollection(["身份证","工作证","港澳通行证","护照","其他证件"]);
+				
+			/**数据网络数据源**/
+			[Bindable]
+			public var dataGridCollection:ArrayCollection = new ArrayCollection();
+			
+			/**记录客户号**/
+			[Bindable]
+			public var customeridCollection:ArrayCollection = new ArrayCollection();
+			
+			/*   回车键事件监听   */
+			protected function keyHandler(event:KeyboardEvent):void{
+				if(event.keyCode == 13){
+					var kNumber:String = ctmid.text;
+					
+					//最终显示客户名
+					if("99999999999" == kNumber){
+						ctmName.text = "交通银行客户";
+					}
+				}
+			}
+			
+			
+			/*  数据校验通用方法 */
+			 protected function validate():Boolean{
+			 	var kNumber:String = ctmid.text;
+				
+				//校验客户是否为数字
+				if(kNumber.length == 0){
+					Alert.show("客户号不能为空！");
+						return false;
+				}
+				
+				//校验证件种类字段
+				if(ctmType.selectedItem == null){
+					Alert.show("证件种类不能为空：");
+					return false;
+				}
+				
+				//校验证件号码
+				if(ctmNum.text.length == 0){
+					Alert.show("证件号码不能为空！");
+					return false;
+				}
+				
+				//开户时间校验
+				if(ctmTime.text.length == 0){
+					Alert.show("开户时间不能为空！");
+					return false;
+				}
+				return true;
+			 }
+				 
+			/* 证件选择事件监听 */
+			protected function ctmTypeChange(event:IndexChangeEvent):void{
+				if(ctmType.selectedItem == "其他证件"){
+					ctmNum.text = "000000000";
+					ctmNum.enabled = false;
+				}else{
+					ctmNum.enabled = true;
+				}
+			}
+			
+			/* 查询按钮点击事件 */
+			protected function queryButtonClick(event:MouseEvent):void{
+				if(!validate()){
+					return;
+				}
+				
+				var content:Object = new Object();
+				content.customerId = ctmid.text;
+				content.customerName = ctmName.text;
+				content.customerType = ctmType.textInput;
+				content.customerNum = ctmNum.text;
+				content.customerTime = ctmTime.text;
+				
+				if(customeridCollection.contains(ctmid.text)){
+					Alert.show("列表中存在相同的客户，请检查！");
+					return;
+				}
+				customeridCollection.addItem(ctmid.text);
+				dataGridCollection.addItem(content);
+			}
+			
+			/* 删除按钮点击事件 */
+			protected function deleteButtonClick(event:MouseEvent):void{
+				var selectIndexs:Array = data.selectedIndices;
+				if(selectIndexs.length == 0){
+					Alert.show("未选中任意一条数据");
+					return;
+				}
+				
+				var aTmp:ArrayCollection = new ArrayCollection();
+				aTmp.addAll(customeridCollection);
+				customeridCollection.removeAll();
+				
+				var bTmp:ArrayCollection = new ArrayCollection();
+				bTmp.addAll(dataGridCollection);
+				dataGridCollection.removeAll();
+				
+				for(var j:int = 0; j < aTmp.length; j++){
+					if(jugeIfExist(selectIndexs, j)){
+						continue;
+					}
+					customeridCollection.addItem(aTmp.getItemAt(j));
+					dataGridCollection.addItem(bTmp.getItemAt(j));
+				}
+			}
+			
+			protected function jugeIfExist(array:Array, index:int):Boolean{
+				for(var i:int = 0; i < array.length; i++){
+					if(index == array[i]){
+						return true;
+					}
+				}
+				return false;
+			}
+			
+			/* 集合元素展开 */
+			public function commLabelFunction(item:Object):String{
+				return item as String;
+			}
+			
+			/* 修改按钮事件 */
+			protected function updateButtonClick(event:MouseEvent):void{
+				if(data.selectedIndices.length == 0){
+					Alert.show("请选择1行修改数据！");
+					return;
+						
+				}
+				
+				if(data.selectedIndices.length != 1){
+					Alert.show("只能选择一行数据进行修改！");
+					return;
+				}
+			}
+			
+			
+			 
+		]]>
+	</fx:Script>
+	
+		
+		
+</s:Application>
